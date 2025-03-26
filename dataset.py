@@ -14,9 +14,9 @@ class SinogramDataset(Dataset):
         # Determine dataset range based on train/test
         if not test:
             if is_train:
-                self.i_range = range(1, 3)  # 1 to 170 (placeholder for demo)
+                self.i_range = range(1, 171)  # 1 to 170 (placeholder for demo)
             else:
-                self.i_range = range(1, 3)   # 1 to 36 (placeholder for demo)
+                self.i_range = range(1, 36)   # 1 to 36 (placeholder for demo)
         else:
             if is_train:
                 self.i_range = range(1, 171 - 169)  # 1 to 170
