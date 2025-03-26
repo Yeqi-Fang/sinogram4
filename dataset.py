@@ -14,9 +14,9 @@ class SinogramDataset(Dataset):
         # Determine dataset range based on train/test
         if not test:
             if is_train:
-                self.i_range = range(1, 3)  # 1 to 170
+                self.i_range = range(1, 3)  # 1 to 170 (placeholder for demo)
             else:
-                self.i_range = range(1, 3)   # 1 to 36
+                self.i_range = range(1, 3)   # 1 to 36 (placeholder for demo)
         else:
             if is_train:
                 self.i_range = range(1, 171 - 169)  # 1 to 170
@@ -58,7 +58,7 @@ class SinogramDataset(Dataset):
         if current_incomplete.dim() == 2:
             current_incomplete = current_incomplete.unsqueeze(0)
         
-        # Left neighbor: if first in group, use zeros; otherwise load j-1
+        # Left neighbor: if first in group, use current image itself; otherwise load j-1
         if pos_in_group == 0:
             left_incomplete = current_incomplete.clone()
         else:
@@ -66,9 +66,9 @@ class SinogramDataset(Dataset):
             if left_incomplete.dim() == 2:
                 left_incomplete = left_incomplete.unsqueeze(0)
         
-        # Right neighbor: if last in group, use zeros; otherwise load j+1
+        # Right neighbor: if last in group, use current image itself; otherwise load j+1
         if pos_in_group == 41:
-            right_incomplete = torch.zeros_like(current_incomplete)
+            right_incomplete = current_incomplete.clone()
         else:
             right_incomplete = torch.from_numpy(self.incomplete_data[(i, j + 1)].astype(np.float32))
             if right_incomplete.dim() == 2:
@@ -83,14 +83,14 @@ class SinogramDataset(Dataset):
             current_complete = current_complete.unsqueeze(0)
         
         if pos_in_group == 0:
-            left_complete = torch.zeros_like(current_complete)
+            left_complete = current_complete.clone()
         else:
             left_complete = torch.from_numpy(self.complete_data[(i, j - 1)].astype(np.float32))
             if left_complete.dim() == 2:
                 left_complete = left_complete.unsqueeze(0)
         
         if pos_in_group == 41:
-            right_complete = torch.zeros_like(current_complete)
+            right_complete = current_complete.clone()
         else:
             right_complete = torch.from_numpy(self.complete_data[(i, j + 1)].astype(np.float32))
             if right_complete.dim() == 2:
@@ -105,13 +105,12 @@ class SinogramDataset(Dataset):
         
         return incomplete_3ch, complete_3ch
 
-
 # Example of how to use the dataset
 def create_dataloaders(data_dir, batch_size=8, num_workers=4, test=False, transform=False):
     # Define transforms
     if transform:
         transform = transforms.Compose([
-        transforms.Resize((256, 256)),  # Resize to the specified dimensions
+            transforms.Resize((256, 256)),  # Resize to the specified dimensions
         ])
     else:
         transform = None
