@@ -146,7 +146,7 @@ def train_model(model, train_loader, test_loader, num_epochs=50, start_epoch=0, 
                 vis_outputs = model(vis_incomplete.to(device))
             
             save_visualizations(vis_incomplete, vis_outputs, vis_complete, 
-                              os.path.join(vis_dir, 'initial_state.png'),
+                              os.path.join(vis_dir, 'initial_state.pdf'),
                               title="Initial Model State")
     
     # Training loop
@@ -273,7 +273,7 @@ def train_model(model, train_loader, test_loader, num_epochs=50, start_epoch=0, 
             with autocast(device_type='cuda'):
                 vis_outputs = model(vis_incomplete.to(device))
             
-            vis_path = os.path.join(vis_dir, f'epoch_{epoch+1:03d}.png')
+            vis_path = os.path.join(vis_dir, f'epoch_{epoch+1:03d}.pdf')
             save_visualizations(vis_incomplete, vis_outputs, vis_complete, vis_path,
                               title=f'Epoch {epoch+1} - Validation Loss: {avg_val_loss:.6f}')
             print(f"Visualization saved to {vis_path}")
