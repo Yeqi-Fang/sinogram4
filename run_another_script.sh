@@ -4,8 +4,8 @@
 cat > ~/monitor_and_run.sh << 'EOF'
 #!/bin/bash
 
-PID_TO_MONITOR=67591
-COMMAND="python sinogram3/main.py --data_dir /mnt/d/fyq/sinogram/2e9div_smooth --mode train --batch_size 32 --num_epochs 20 --models_dir checkpoints --attention 1 --lr 7e-6 --light 1 --log_dir ~/sinogram3/log"
+PID_TO_MONITOR=216499
+COMMAND="python gratuate-thesis/listmode_to_incomplete.py --input_dir /mnt/d/fyq/sinogram/reconstruction_npy_full_train/2000000000/listmode --output_dir /mnt/d/fyq/sinogram/reconstruction_npy_full_train/2000000000/listmode_i_6_12_24_300 --sinogram_dir /mnt/d/fyq/sinogram/reconstruction_npy_full_train/2000000000/sinogram_i_6_12_24_300 --num_events 2000000000 --visualize --missing_start1 60 --missing_end1 120 --missing_start2 240 --missing_end2 300"
 echo "Starting monitor for process $PID_TO_MONITOR"
 echo "Will run: $COMMAND"
 
