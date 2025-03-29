@@ -13,7 +13,7 @@ def evaluate_model(model, test_loader, device='cuda', num_samples=5, output_dir=
     test_mae = 0.0
     
     samples = []
-    count = 0
+    count = 5
     
     with torch.no_grad():
         for incomplete, complete in tqdm(test_loader, desc='Evaluating'):
@@ -47,7 +47,7 @@ def evaluate_model(model, test_loader, device='cuda', num_samples=5, output_dir=
                 # Save samples for visualization
                 if count < num_samples:
                     samples.append((incomplete_np[i, 1], output_np[i, 1], complete_np[i, 1]))
-                    count += 1
+                    count += 5
     
     # Average metrics
     num_items = len(test_loader.dataset)
