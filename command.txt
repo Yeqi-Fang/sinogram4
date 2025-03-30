@@ -15,3 +15,5 @@ python main.py --data_dir /mnt/d/fyq/sinogram/2e9div_smooth --mode train --batch
 python main.py --data_dir /mnt/d/fyq/sinogram/2e9div_smooth --mode train --batch_size 64 --num_epochs 30 --models_dir checkpoints --attention 1 --lr 1e-5 --light 2
 
 python main.py --data_dir /mnt/d/fyq/sinogram/2e9div_smooth --mode train --batch_size 24 --num_epochs 30 --models_dir checkpoints --attention 1 --lr 5e-6
+
+python convert_incomplete_to_predicted.py --data_dir /mnt/d/fyq/sinogram/2e9div_smooth --subset test --checkpoint /mnt/d/fyq/sinogram/log/sinigram4/20250327_182411/final_model.pth --output_dir /mnt/d/fyq/sinogram/2e9div_smooth/recover/20250327_182411

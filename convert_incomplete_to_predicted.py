@@ -24,7 +24,7 @@ def convert_incomplete_to_predicted(data_dir, subset, checkpoint_path, output_di
     
     # Instantiate the dataset (the 'test' flag can be set according to your use case)
     is_train = True if subset.lower() == 'train' else False
-    dataset = SinogramDataset(subset_dir, is_train=is_train, transform=None, test=False)
+    dataset = SinogramDataset(subset_dir, is_train=is_train, transform=None, test=True)
     
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
