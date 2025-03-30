@@ -10,7 +10,7 @@ from model import UNet  # or import LighterUNet if preferred
 
 def load_model(checkpoint_path, device):
     # Create the model instance (n_channels=3 for 3-channel input, n_classes=3 for 3-channel output)
-    model = UNet(n_channels=3, n_classes=3, bilinear=False, attention=False, pretrain=False)
+    model = UNet(n_channels=3, n_classes=3, bilinear=False, attention=True, pretrain=False)
     checkpoint = torch.load(checkpoint_path, map_location=device)
     # Assuming the checkpoint dictionary contains 'model_state_dict'
     model.load_state_dict(checkpoint['model_state_dict'])
