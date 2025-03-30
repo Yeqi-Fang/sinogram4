@@ -32,7 +32,7 @@ def convert_incomplete_to_predicted(data_dir, subset, checkpoint_path, output_di
     
     # Instantiate the dataset
     is_train = True if subset.lower() == 'train' else False
-    dataset = SinogramDataset(subset_dir, is_train=is_train, transform=None, test=True)
+    dataset = SinogramDataset(subset_dir, is_train=is_train, transform=None, test=False)
     
     # Create a DataLoader with the specified batch size
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, 
