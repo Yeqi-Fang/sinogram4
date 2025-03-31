@@ -105,9 +105,9 @@ def main():
     
     # Create model
     if not args.light:
-        model = UNet(n_channels=3, n_classes=3, bilinear=False, attention=args, pretrain=args.pretrain)
+        model = UNet(n_channels=5, n_classes=5, bilinear=False, attention=args.attention, pretrain=args.pretrain)
     else:
-        model = LighterUNet(n_channels=3, n_classes=3, bilinear=False, attention=args, pretrain=args.pretrain, light=args.light)
+        model = LighterUNet(n_channels=5, n_classes=5, bilinear=False, attention=args.attention, pretrain=args.pretrain, light=args.light)
     
     # Count model parameters
     total_params = count_model_parameters(model)

@@ -31,9 +31,9 @@ def calculate_metrics(output_batch, target_batch):
     mae_val = 0.0
     
     for i in range(batch_size):
-        # Extract the central channel (index 1) containing the main prediction
-        output_img = output_batch[i, 1]
-        target_img = target_batch[i, 1]
+        # Extract the central channel (index 2) containing the main prediction
+        output_img = output_batch[i, 2]
+        target_img = target_batch[i, 2]
         
         # Calculate data range for normalized metrics
         data_range = target_img.max() - target_img.min()
@@ -243,7 +243,7 @@ def train_model(model, train_loader, test_loader, num_epochs=50, start_epoch=0, 
                 # Forward pass with mixed precision
                 with autocast(device_type='cuda'):
                     outputs = model(incomplete)
-                    loss = criterion(outputs[:, 1:2, :, :], complete[:, 1:2, :, :])
+                    loss = criterion(outputs[:, 2:3, :, :], complete[:, 2:3, :, :])
                 
                 # Calculate metrics for this batch
                 outputs_np = outputs.cpu().numpy()
@@ -397,9 +397,9 @@ def save_visualizations(incomplete, outputs, complete, filepath, title="Visualiz
     
     for i in range(min(4, len(incomplete))):
         # Get the images
-        input_img = incomplete[i, 1].cpu().numpy()
-        output_img = outputs[i, 1].cpu().numpy()
-        target_img = complete[i, 1].cpu().numpy()
+        input_img = incomplete[i, 2].cpu().numpy()
+        output_img = outputs[i, 2].cpu().numpy()
+        target_img = complete[i, 2].cpu().numpy()
         
         # Determine global min and max for consistent colormap scaling
         vmin = min(input_img.min(), output_img.min(), target_img.min())

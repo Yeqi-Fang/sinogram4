@@ -12,9 +12,9 @@ from torch.utils.data import DataLoader
 def load_model(checkpoint_path, device, model_type='unet', attention=True):
     # Create the model instance based on model type
     if model_type.lower() == 'unet':
-        model = UNet(n_channels=3, n_classes=3, bilinear=False, attention=attention, pretrain=False)
+        model = UNet(n_channels=5, n_classes=5, bilinear=False, attention=attention, pretrain=False)
     elif model_type.lower() == 'lighterunet':
-        model = LighterUNet(n_channels=3, n_classes=3, bilinear=False, attention=attention, pretrain=False, light=1)
+        model = LighterUNet(n_channels=5, n_classes=5, bilinear=False, attention=attention, pretrain=False, light=1)
     else:
         raise ValueError(f"Unsupported model type: {model_type}")
     
@@ -67,7 +67,7 @@ def convert_incomplete_to_predicted(data_dir, subset, checkpoint_path, output_di
                 data_i, data_j = dataset.pairs[idx]
                 
                 # Extract the predicted complete image (middle channel)
-                predicted_complete = outputs[i, 1].cpu().numpy()
+                predicted_complete = outputs[i, 2].cpu().numpy()
                 
                 # Save the predicted image
                 output_path = os.path.join(output_dir, f"incomplete_{data_i}_{data_j}.npy")

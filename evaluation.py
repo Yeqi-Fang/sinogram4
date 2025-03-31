@@ -30,23 +30,23 @@ def evaluate_model(model, test_loader, device='cuda', num_samples=5, output_dir=
             batch_size = output.shape[0]
             for i in range(batch_size):
                 # MSE (already normalized data)
-                mse = ((output_np[i, 1] - complete_np[i, 1]) ** 2).mean()
+                mse = ((output_np[i, 2] - complete_np[i, 2]) ** 2).mean()
                 test_mse += mse
                 
                 # MAE
-                mae = np.abs(output_np[i, 1] - complete_np[i, 1]).mean()
+                mae = np.abs(output_np[i, 2] - complete_np[i, 2]).mean()
                 test_mae += mae
                 
-                data_range = complete_np[i, 1].max() - complete_np[i, 1].min()
+                data_range = complete_np[i, 2].max() - complete_np[i, 2].min()
                 # PSNR
-                test_psnr += psnr(complete_np[i, 1], output_np[i, 1], data_range=data_range)
+                test_psnr += psnr(complete_np[i, 2], output_np[i, 2], data_range=data_range)
                 
                 # SSIM
-                test_ssim += ssim(complete_np[i, 1], output_np[i, 1], data_range=data_range)
+                test_ssim += ssim(complete_np[i, 2], output_np[i, 2], data_range=data_range)
                 
                 # Save samples for visualization
                 if count < num_samples:
-                    samples.append((incomplete_np[i, 1], output_np[i, 1], complete_np[i, 1]))
+                    samples.append((incomplete_np[i, 2], output_np[i, 2], complete_np[i, 2]))
                     count += 1
     
     # Average metrics

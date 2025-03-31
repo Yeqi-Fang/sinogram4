@@ -74,8 +74,26 @@ class SinogramDataset(Dataset):
             if right_incomplete.dim() == 2:
                 right_incomplete = right_incomplete.unsqueeze(0)
         
-        # Stack to create a 3-channel tensor (3, H, W)
-        incomplete_3ch = torch.cat([left_incomplete, current_incomplete, right_incomplete], dim=0)
+        # Previous cycle (j-42): if j-42 < 1, use current image
+        if j < 43:  # j-42 would be < 1, which is out of range
+            prev_cycle_incomplete = current_incomplete.clone()
+        else:
+            prev_cycle_incomplete = torch.from_numpy(self.incomplete_data[(i, j - 42)].astype(np.float32))
+            if prev_cycle_incomplete.dim() == 2:
+                prev_cycle_incomplete = prev_cycle_incomplete.unsqueeze(0)
+        
+        # Next cycle (j+42): if j+42 > max_j, use current image
+        max_j = max(self.j_range)
+        if j > max_j - 42:  # j+42 would be > max_j, which is out of range
+            next_cycle_incomplete = current_incomplete.clone()
+        else:
+            next_cycle_incomplete = torch.from_numpy(self.incomplete_data[(i, j + 42)].astype(np.float32))
+            if next_cycle_incomplete.dim() == 2:
+                next_cycle_incomplete = next_cycle_incomplete.unsqueeze(0)
+        
+        # Stack to create a 5-channel tensor (5, H, W) with order: prev_cycle, left, current, right, next_cycle
+        incomplete_5ch = torch.cat([prev_cycle_incomplete, left_incomplete, current_incomplete, 
+                                  right_incomplete, next_cycle_incomplete], dim=0)
         
         # --- For the complete sinogram ---
         current_complete = torch.from_numpy(self.complete_data[(i, j)].astype(np.float32))
@@ -96,14 +114,32 @@ class SinogramDataset(Dataset):
             if right_complete.dim() == 2:
                 right_complete = right_complete.unsqueeze(0)
         
-        complete_3ch = torch.cat([left_complete, current_complete, right_complete], dim=0)
+        # Previous cycle (j-42): if j-42 < 1, use current image
+        if j < 43:
+            prev_cycle_complete = current_complete.clone()
+        else:
+            prev_cycle_complete = torch.from_numpy(self.complete_data[(i, j - 42)].astype(np.float32))
+            if prev_cycle_complete.dim() == 2:
+                prev_cycle_complete = prev_cycle_complete.unsqueeze(0)
+        
+        # Next cycle (j+42): if j+42 > max_j, use current image
+        if j > max_j - 42:
+            next_cycle_complete = current_complete.clone()
+        else:
+            next_cycle_complete = torch.from_numpy(self.complete_data[(i, j + 42)].astype(np.float32))
+            if next_cycle_complete.dim() == 2:
+                next_cycle_complete = next_cycle_complete.unsqueeze(0)
+        
+        # Stack to create a 5-channel tensor (5, H, W) with order: prev_cycle, left, current, right, next_cycle
+        complete_5ch = torch.cat([prev_cycle_complete, left_complete, current_complete, 
+                                right_complete, next_cycle_complete], dim=0)
         
         # Apply transforms if provided
         if self.transform:
-            incomplete_3ch = self.transform(incomplete_3ch)
-            complete_3ch = self.transform(complete_3ch)
+            incomplete_5ch = self.transform(incomplete_5ch)
+            complete_5ch = self.transform(complete_5ch)
         
-        return incomplete_3ch, complete_3ch
+        return incomplete_5ch, complete_5ch
 
 # Example of how to use the dataset
 def create_dataloaders(data_dir, batch_size=8, num_workers=4, test=False, transform=False):
