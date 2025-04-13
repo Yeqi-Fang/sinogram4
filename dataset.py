@@ -203,6 +203,10 @@ class SinogramDataset(Dataset):
         complete_5ch = torch.cat([prev_cycle_complete, left_complete, current_complete, 
                                 right_complete, next_cycle_complete], dim=0)
         
+        
+        del current_incomplete, current_complete, left_incomplete, left_complete, right_incomplete, right_complete
+        del prev_cycle_incomplete, prev_cycle_complete, next_cycle_incomplete, next_cycle_complete
+        
         # Apply transforms if provided
         if self.transform:
             incomplete_5ch = self.transform(incomplete_5ch)
