@@ -222,7 +222,7 @@ def create_dataloaders(data_dir, batch_size=8, num_workers=4, test=False, transf
         transform = None
     
     # Create datasets with preload option (use the passed parameter now)
-    train_dataset = SinogramDataset(os.path.join(data_dir, 'train'), is_train=True, transform=transform, test=test, preload=preload)
+    train_dataset = SinogramDataset(os.path.join(data_dir, 'train'), is_train=False, transform=transform, test=test, preload=preload)
     test_dataset = SinogramDataset(os.path.join(data_dir, 'test'), is_train=False, transform=transform, test=test, preload=preload)
     
     # Create dataloaders with proper settings for memory efficiency
