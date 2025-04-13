@@ -200,7 +200,7 @@ class SinogramDataset(Dataset):
         return incomplete_5ch, complete_5ch
 
 # Update the create_dataloaders function to pass the preload parameter
-def create_dataloaders(data_dir, batch_size=8, num_workers=4, test=False, transform=False, preload=True):
+def create_dataloaders(data_dir, batch_size=8, num_workers=12, test=False, transform=False, preload=True):
     # Define transforms
     if transform:
         transform = transforms.Compose([
@@ -210,11 +210,11 @@ def create_dataloaders(data_dir, batch_size=8, num_workers=4, test=False, transf
         transform = None
     
     # Create datasets with preload option
-    train_dataset = SinogramDataset(os.path.join(data_dir, 'train'), is_train=True, transform=transform, test=test, preload=True)
+    train_dataset = SinogramDataset(os.path.join(data_dir, 'train'), is_train=True, transform=transform, test=test, preload=False)
     test_dataset = SinogramDataset(os.path.join(data_dir, 'test'), is_train=False, transform=transform, test=test, preload=False)
     
     # Create dataloaders
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=False)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=False)
     
     return train_loader, test_loader
