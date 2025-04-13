@@ -5,6 +5,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import gc  # Add garbage collector
 
 class SinogramDataset(Dataset):
     def __init__(self, data_dir, is_train=True, transform=None, test=False, preload=True):
@@ -16,14 +17,14 @@ class SinogramDataset(Dataset):
         # Determine dataset range based on train/test
         if not test:
             if is_train:
-                self.i_range = range(1, 171)  # 1 to 170 (placeholder for demo)
+                self.i_range = range(1, 171)  # 1 to 170
             else:
-                self.i_range = range(1, 37)   # 1 to 37 (placeholder for demo)
+                self.i_range = range(1, 37)   # 1 to 37
         else:
             if is_train:
-                self.i_range = range(1, 171 - 169)  # 1 to 170
+                self.i_range = range(1, 171 - 169)  # 1 to 2
             else:
-                self.i_range = range(1, 37 - 35)   # 1 to 36
+                self.i_range = range(1, 37 - 35)   # 1 to 2
                 
         self.j_range = range(1, 1765)  # 1 to 1764
         
@@ -62,7 +63,8 @@ class SinogramDataset(Dataset):
         else:
             # Load from disk on-the-fly
             incomplete_path = os.path.join(self.data_dir, f"incomplete_{i}_{j}.npy")
-            current_incomplete = torch.from_numpy(np.load(incomplete_path).astype(np.float32))
+            with open(incomplete_path, 'rb') as f:
+                current_incomplete = torch.from_numpy(np.load(f).astype(np.float32))
             
         if current_incomplete.dim() == 2:
             current_incomplete = current_incomplete.unsqueeze(0)
@@ -75,7 +77,8 @@ class SinogramDataset(Dataset):
                 left_incomplete = torch.from_numpy(self.incomplete_data[(i, j - 1)].astype(np.float32))
             else:
                 left_incomplete_path = os.path.join(self.data_dir, f"incomplete_{i}_{j-1}.npy")
-                left_incomplete = torch.from_numpy(np.load(left_incomplete_path).astype(np.float32))
+                with open(left_incomplete_path, 'rb') as f:
+                    left_incomplete = torch.from_numpy(np.load(f).astype(np.float32))
                 
             if left_incomplete.dim() == 2:
                 left_incomplete = left_incomplete.unsqueeze(0)
@@ -88,7 +91,8 @@ class SinogramDataset(Dataset):
                 right_incomplete = torch.from_numpy(self.incomplete_data[(i, j + 1)].astype(np.float32))
             else:
                 right_incomplete_path = os.path.join(self.data_dir, f"incomplete_{i}_{j+1}.npy")
-                right_incomplete = torch.from_numpy(np.load(right_incomplete_path).astype(np.float32))
+                with open(right_incomplete_path, 'rb') as f:
+                    right_incomplete = torch.from_numpy(np.load(f).astype(np.float32))
                 
             if right_incomplete.dim() == 2:
                 right_incomplete = right_incomplete.unsqueeze(0)
@@ -101,7 +105,8 @@ class SinogramDataset(Dataset):
                 prev_cycle_incomplete = torch.from_numpy(self.incomplete_data[(i, j - 42)].astype(np.float32))
             else:
                 prev_cycle_incomplete_path = os.path.join(self.data_dir, f"incomplete_{i}_{j-42}.npy")
-                prev_cycle_incomplete = torch.from_numpy(np.load(prev_cycle_incomplete_path).astype(np.float32))
+                with open(prev_cycle_incomplete_path, 'rb') as f:
+                    prev_cycle_incomplete = torch.from_numpy(np.load(f).astype(np.float32))
                 
             if prev_cycle_incomplete.dim() == 2:
                 prev_cycle_incomplete = prev_cycle_incomplete.unsqueeze(0)
@@ -115,14 +120,15 @@ class SinogramDataset(Dataset):
                 next_cycle_incomplete = torch.from_numpy(self.incomplete_data[(i, j + 42)].astype(np.float32))
             else:
                 next_cycle_incomplete_path = os.path.join(self.data_dir, f"incomplete_{i}_{j+42}.npy")
-                next_cycle_incomplete = torch.from_numpy(np.load(next_cycle_incomplete_path).astype(np.float32))
+                with open(next_cycle_incomplete_path, 'rb') as f:
+                    next_cycle_incomplete = torch.from_numpy(np.load(f).astype(np.float32))
                 
             if next_cycle_incomplete.dim() == 2:
                 next_cycle_incomplete = next_cycle_incomplete.unsqueeze(0)
         
         # Stack to create a 5-channel tensor
         incomplete_5ch = torch.cat([prev_cycle_incomplete, left_incomplete, current_incomplete, 
-                                  right_incomplete, next_cycle_incomplete], dim=0)
+                                    right_incomplete, next_cycle_incomplete], dim=0)
         
         # --- For the complete sinogram ---
         if self.preload:
@@ -131,7 +137,8 @@ class SinogramDataset(Dataset):
         else:
             # Load from disk on-the-fly
             complete_path = os.path.join(self.data_dir, f"complete_{i}_{j}.npy")
-            current_complete = torch.from_numpy(np.load(complete_path).astype(np.float32))
+            with open(complete_path, 'rb') as f:
+                current_complete = torch.from_numpy(np.load(f).astype(np.float32))
             
         if current_complete.dim() == 2:
             current_complete = current_complete.unsqueeze(0)
@@ -144,7 +151,8 @@ class SinogramDataset(Dataset):
                 left_complete = torch.from_numpy(self.complete_data[(i, j - 1)].astype(np.float32))
             else:
                 left_complete_path = os.path.join(self.data_dir, f"complete_{i}_{j-1}.npy")
-                left_complete = torch.from_numpy(np.load(left_complete_path).astype(np.float32))
+                with open(left_complete_path, 'rb') as f:
+                    left_complete = torch.from_numpy(np.load(f).astype(np.float32))
                 
             if left_complete.dim() == 2:
                 left_complete = left_complete.unsqueeze(0)
@@ -157,7 +165,8 @@ class SinogramDataset(Dataset):
                 right_complete = torch.from_numpy(self.complete_data[(i, j + 1)].astype(np.float32))
             else:
                 right_complete_path = os.path.join(self.data_dir, f"complete_{i}_{j+1}.npy")
-                right_complete = torch.from_numpy(np.load(right_complete_path).astype(np.float32))
+                with open(right_complete_path, 'rb') as f:
+                    right_complete = torch.from_numpy(np.load(f).astype(np.float32))
                 
             if right_complete.dim() == 2:
                 right_complete = right_complete.unsqueeze(0)
@@ -170,7 +179,8 @@ class SinogramDataset(Dataset):
                 prev_cycle_complete = torch.from_numpy(self.complete_data[(i, j - 42)].astype(np.float32))
             else:
                 prev_cycle_complete_path = os.path.join(self.data_dir, f"complete_{i}_{j-42}.npy")
-                prev_cycle_complete = torch.from_numpy(np.load(prev_cycle_complete_path).astype(np.float32))
+                with open(prev_cycle_complete_path, 'rb') as f:
+                    prev_cycle_complete = torch.from_numpy(np.load(f).astype(np.float32))
                 
             if prev_cycle_complete.dim() == 2:
                 prev_cycle_complete = prev_cycle_complete.unsqueeze(0)
@@ -183,7 +193,8 @@ class SinogramDataset(Dataset):
                 next_cycle_complete = torch.from_numpy(self.complete_data[(i, j + 42)].astype(np.float32))
             else:
                 next_cycle_complete_path = os.path.join(self.data_dir, f"complete_{i}_{j+42}.npy")
-                next_cycle_complete = torch.from_numpy(np.load(next_cycle_complete_path).astype(np.float32))
+                with open(next_cycle_complete_path, 'rb') as f:
+                    next_cycle_complete = torch.from_numpy(np.load(f).astype(np.float32))
                 
             if next_cycle_complete.dim() == 2:
                 next_cycle_complete = next_cycle_complete.unsqueeze(0)
@@ -198,9 +209,10 @@ class SinogramDataset(Dataset):
             complete_5ch = self.transform(complete_5ch)
         
         return incomplete_5ch, complete_5ch
+        
 
-# Update the create_dataloaders function to pass the preload parameter
-def create_dataloaders(data_dir, batch_size=8, num_workers=12, test=False, transform=False, preload=True):
+# Fix the create_dataloaders function to use the preload parameter correctly
+def create_dataloaders(data_dir, batch_size=8, num_workers=4, test=False, transform=False, preload=True):
     # Define transforms
     if transform:
         transform = transforms.Compose([
@@ -209,12 +221,27 @@ def create_dataloaders(data_dir, batch_size=8, num_workers=12, test=False, trans
     else:
         transform = None
     
-    # Create datasets with preload option
-    train_dataset = SinogramDataset(os.path.join(data_dir, 'train'), is_train=True, transform=transform, test=test, preload=False)
-    test_dataset = SinogramDataset(os.path.join(data_dir, 'test'), is_train=False, transform=transform, test=test, preload=False)
+    # Create datasets with preload option (use the passed parameter now)
+    train_dataset = SinogramDataset(os.path.join(data_dir, 'train'), is_train=True, transform=transform, test=test, preload=preload)
+    test_dataset = SinogramDataset(os.path.join(data_dir, 'test'), is_train=False, transform=transform, test=test, preload=preload)
     
-    # Create dataloaders
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=False)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=False)
+    # Create dataloaders with proper settings for memory efficiency
+    train_loader = DataLoader(
+        train_dataset, 
+        batch_size=batch_size, 
+        shuffle=True, 
+        num_workers=num_workers,
+        pin_memory=False,  # Set to False to reduce memory usage
+        persistent_workers=False if num_workers == 0 else True  # Keep workers alive between batches
+    )
+    
+    test_loader = DataLoader(
+        test_dataset, 
+        batch_size=batch_size, 
+        shuffle=False, 
+        num_workers=num_workers,
+        pin_memory=False,  # Set to False to reduce memory usage
+        persistent_workers=False if num_workers == 0 else True  # Keep workers alive between batches
+    )
     
     return train_loader, test_loader
