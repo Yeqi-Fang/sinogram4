@@ -28,26 +28,33 @@ class SinogramDataset(Dataset):
         # Create all possible (i,j) pairs
         self.pairs = [(i, j) for i in self.i_range for j in self.j_range]
         
-        print(f"Dataset initialized with {len(self.pairs)} pairs of sinograms")
-    
+        # Preload all data into memory
+        print(f"Preloading {'training' if is_train else 'testing'} data into memory...")
+        self.incomplete_data = {}
+        self.complete_data = {}
+        
+        for i, j in tqdm(self.pairs):
+            # Define file paths
+            incomplete_path = os.path.join(self.data_dir, f"incomplete_{i}_{j}.npy")
+            complete_path = os.path.join(self.data_dir, f"complete_{i}_{j}.npy")
+            
+            # Load data as float16 to save memory during preloading
+            self.incomplete_data[(i, j)] = np.load(incomplete_path).astype(np.float16)
+            self.complete_data[(i, j)] = np.load(complete_path).astype(np.float16)
+        
+        print(f"Successfully preloaded {len(self.pairs)} pairs of sinograms")
+        
     def __len__(self):
         return len(self.pairs)
-    
-    def _load_file(self, i, j, is_complete=False):
-        """Helper method to load a single file from disk"""
-        prefix = "complete" if is_complete else "incomplete"
-        file_path = os.path.join(self.data_dir, f"{prefix}_{i}_{j}.npy")
-        return np.load(file_path).astype(np.float32)
     
     def __getitem__(self, idx):
         i, j = self.pairs[idx]
         # Determine position in group (0-indexed): 0 means first image in a group, 41 means last image in a group
         pos_in_group = (j - 1) % 42
-        max_j = max(self.j_range)
 
         # --- For the incomplete sinogram ---
         # Load current sinogram and ensure channel dimension exists
-        current_incomplete = torch.from_numpy(self._load_file(i, j, False))
+        current_incomplete = torch.from_numpy(self.incomplete_data[(i, j)].astype(np.float32))
         if current_incomplete.dim() == 2:
             current_incomplete = current_incomplete.unsqueeze(0)
         
@@ -55,7 +62,7 @@ class SinogramDataset(Dataset):
         if pos_in_group == 0:
             left_incomplete = current_incomplete.clone()
         else:
-            left_incomplete = torch.from_numpy(self._load_file(i, j - 1, False))
+            left_incomplete = torch.from_numpy(self.incomplete_data[(i, j - 1)].astype(np.float32))
             if left_incomplete.dim() == 2:
                 left_incomplete = left_incomplete.unsqueeze(0)
         
@@ -63,7 +70,7 @@ class SinogramDataset(Dataset):
         if pos_in_group == 41:
             right_incomplete = current_incomplete.clone()
         else:
-            right_incomplete = torch.from_numpy(self._load_file(i, j + 1, False))
+            right_incomplete = torch.from_numpy(self.incomplete_data[(i, j + 1)].astype(np.float32))
             if right_incomplete.dim() == 2:
                 right_incomplete = right_incomplete.unsqueeze(0)
         
@@ -71,15 +78,16 @@ class SinogramDataset(Dataset):
         if j < 43:  # j-42 would be < 1, which is out of range
             prev_cycle_incomplete = current_incomplete.clone()
         else:
-            prev_cycle_incomplete = torch.from_numpy(self._load_file(i, j - 42, False))
+            prev_cycle_incomplete = torch.from_numpy(self.incomplete_data[(i, j - 42)].astype(np.float32))
             if prev_cycle_incomplete.dim() == 2:
                 prev_cycle_incomplete = prev_cycle_incomplete.unsqueeze(0)
         
         # Next cycle (j+42): if j+42 > max_j, use current image
+        max_j = max(self.j_range)
         if j > max_j - 42:  # j+42 would be > max_j, which is out of range
             next_cycle_incomplete = current_incomplete.clone()
         else:
-            next_cycle_incomplete = torch.from_numpy(self._load_file(i, j + 42, False))
+            next_cycle_incomplete = torch.from_numpy(self.incomplete_data[(i, j + 42)].astype(np.float32))
             if next_cycle_incomplete.dim() == 2:
                 next_cycle_incomplete = next_cycle_incomplete.unsqueeze(0)
         
@@ -88,21 +96,21 @@ class SinogramDataset(Dataset):
                                   right_incomplete, next_cycle_incomplete], dim=0)
         
         # --- For the complete sinogram ---
-        current_complete = torch.from_numpy(self._load_file(i, j, True))
+        current_complete = torch.from_numpy(self.complete_data[(i, j)].astype(np.float32))
         if current_complete.dim() == 2:
             current_complete = current_complete.unsqueeze(0)
         
         if pos_in_group == 0:
             left_complete = current_complete.clone()
         else:
-            left_complete = torch.from_numpy(self._load_file(i, j - 1, True))
+            left_complete = torch.from_numpy(self.complete_data[(i, j - 1)].astype(np.float32))
             if left_complete.dim() == 2:
                 left_complete = left_complete.unsqueeze(0)
         
         if pos_in_group == 41:
             right_complete = current_complete.clone()
         else:
-            right_complete = torch.from_numpy(self._load_file(i, j + 1, True))
+            right_complete = torch.from_numpy(self.complete_data[(i, j + 1)].astype(np.float32))
             if right_complete.dim() == 2:
                 right_complete = right_complete.unsqueeze(0)
         
@@ -110,7 +118,7 @@ class SinogramDataset(Dataset):
         if j < 43:
             prev_cycle_complete = current_complete.clone()
         else:
-            prev_cycle_complete = torch.from_numpy(self._load_file(i, j - 42, True))
+            prev_cycle_complete = torch.from_numpy(self.complete_data[(i, j - 42)].astype(np.float32))
             if prev_cycle_complete.dim() == 2:
                 prev_cycle_complete = prev_cycle_complete.unsqueeze(0)
         
@@ -118,7 +126,7 @@ class SinogramDataset(Dataset):
         if j > max_j - 42:
             next_cycle_complete = current_complete.clone()
         else:
-            next_cycle_complete = torch.from_numpy(self._load_file(i, j + 42, True))
+            next_cycle_complete = torch.from_numpy(self.complete_data[(i, j + 42)].astype(np.float32))
             if next_cycle_complete.dim() == 2:
                 next_cycle_complete = next_cycle_complete.unsqueeze(0)
         
