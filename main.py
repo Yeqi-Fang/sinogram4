@@ -40,7 +40,8 @@ def log_run_results(args, metrics, model_params, training_time, log_file='result
     row_data = {
         'timestamp': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'run_id': get_timestamp(),
-        'data_dir': args.data_dir,
+        'incomplete_data_dir': args.incomplete_data_dir,
+        'complete_data_dir': args.complete_data_dir,
         'batch_size': args.batch_size,
         'num_epochs': args.num_epochs,
         'learning_rate': args.lr,
@@ -75,7 +76,8 @@ def count_model_parameters(model):
 
 def main():
     parser = argparse.ArgumentParser(description='Sinogram Restoration')
-    parser.add_argument('--data_dir', type=str, default='2e9div', help='Data directory')
+    parser.add_argument('--incomplete_data_dir', type=str, default='2e9div', help='Data directory')
+    parser.add_argument('--complete_data_dir', type=str, default='2e9div', help='Data directory')
     parser.add_argument('--batch_size', type=int, default=16, help='Batch size')
     parser.add_argument('--num_epochs', type=int, default=50, help='Number of epochs')
     parser.add_argument('--models_dir', type=str, default='models', help='Directory to save model checkpoints')
@@ -101,7 +103,7 @@ def main():
     print(f'Using device: {device}')
     
     # Create dataloaders
-    train_loader, test_loader = create_dataloaders(args.data_dir, args.batch_size, test=args.test, transform=args.transformer)
+    train_loader, test_loader = create_dataloaders(args.complete_data_dir, args.incomplete_data_dir, args.batch_size, test=args.test, transform=args.transformer)
     
     # Create model
     if not args.light:
