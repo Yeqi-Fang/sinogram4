@@ -20,3 +20,6 @@ python convert_incomplete_to_predicted.py --data_dir /mnt/d/fyq/sinogram/2e9div_
 
 
 python main.py --data_dir /root/autodl-tmp/2e9div_smooth --mode train --batch_size 48 --num_epochs 40 --models_dir checkpoints --attention 1 --lr 8e-6
+
+
+python main.py --complete_data_dir /mnt/d/fyq/sinogram/2e9div_smooth_2 --incomplete_data_dir /mnt/d/fyq/sinogram/2e9div_smooth_6_9_13_16_24_26_32_34 --mode train --batch_size 24 --num_epochs 30 --models_dir checkpoints --attention 1 --lr 5e-6 --test 1
