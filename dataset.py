@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 class SinogramDataset(Dataset):
-    def __init__(self, data_dir, is_train=True, transform=None, test=False):
-        self.data_dir = data_dir
+    def __init__(self, complete_data_dir, incomplete_data_dir, is_train=True, transform=None, test=False):
+        self.complete_data_dir = complete_data_dir
+        self.incomplete_data_dir = incomplete_data_dir
         self.is_train = is_train
         self.transform = transform
         # Determine dataset range based on train/test
@@ -143,7 +144,7 @@ class SinogramDataset(Dataset):
         return incomplete_5ch, complete_5ch
 
 # Example of how to use the dataset
-def create_dataloaders(data_dir, batch_size=8, num_workers=4, test=False, transform=False):
+def create_dataloaders(complete_data_dir, incomplete_data_dir, batch_size=8, num_workers=4, test=False, transform=False):
     # Define transforms
     if transform:
         transform = transforms.Compose([
@@ -153,8 +154,8 @@ def create_dataloaders(data_dir, batch_size=8, num_workers=4, test=False, transf
         transform = None
     
     # Create datasets
-    train_dataset = SinogramDataset(os.path.join(data_dir, 'train'), is_train=True, transform=transform, test=test)
-    test_dataset = SinogramDataset(os.path.join(data_dir, 'test'), is_train=False, transform=transform, test=test)
+    train_dataset = SinogramDataset(os.path.join(complete_data_dir, 'train'), os.path.join(incomplete_data_dir, 'train'), is_train=True, transform=transform, test=test)
+    test_dataset = SinogramDataset(os.path.join(complete_data_dir, 'test'), os.path.join(incomplete_data_dir, 'test'), is_train=False, transform=transform, test=test)
     
     # Create dataloaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
