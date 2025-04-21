@@ -36,8 +36,8 @@ class SinogramDataset(Dataset):
         
         for i, j in tqdm(self.pairs):
             # Define file paths
-            incomplete_path = os.path.join(self.incomplete_data_dir, f"incomplete_{i}_{j}.npy")
-            # incomplete_path = os.path.join(self.incomplete_data_dir, f"reconstructed_index{i-1}_num2000000000_{j}.npy")
+            # incomplete_path = os.path.join(self.incomplete_data_dir, f"incomplete_{i}_{j}.npy")
+            incomplete_path = os.path.join(self.incomplete_data_dir, f"incomplete_index{i-1}_num2000000000_{j}.npy")
             # complete_path = os.path.join(self.complete_data_dir, f"complete_{i}_{j}.npy")
             complete_path = os.path.join(self.complete_data_dir, f"reconstructed_index{i-1}_num2000000000_{j}.npy")
             
