@@ -1,0 +1,17 @@
+incomplete_data_dir: /mnt/d/fyq/sinogram/2e9div_smooth_6_9_13_16_24_26_32_34
+complete_data_dir: /mnt/d/fyq/sinogram/2e9div_smooth2
+batch_size: 24
+num_epochs: 40
+models_dir: checkpoints
+log_dir: log
+resume: None
+mode: train
+gpu: 0
+attention: True
+pretrain: False
+lr: 5e-06
+weight_decay: 1e-05
+light: 0
+test: False
+transformer: False
+results_log: sinogram_results.csv
