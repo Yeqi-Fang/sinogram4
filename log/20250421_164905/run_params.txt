@@ -1,6 +1,7 @@
-data_dir: /mnt/d/fyq/sinogram/2e9div_smooth
+incomplete_data_dir: /mnt/d/fyq/sinogram/2e9div_smooth_6_9_13_16_24_26_32_34
+complete_data_dir: /mnt/d/fyq/sinogram/2e9div_smooth2
 batch_size: 24
-num_epochs: 30
+num_epochs: 40
 models_dir: checkpoints
 log_dir: log
 resume: None
